@@ -3,6 +3,7 @@ package com.ollama.lamma.config;
 import com.ollama.lamma.advisors.TokenUsageAuditAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.model.chat.client.autoconfigure.ChatClientBuilderConfigurer;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.context.annotation.Bean;
@@ -15,9 +16,13 @@ public class ChatClientConfig {
 
     @Bean
     public ChatClient ollamaChatClient(OllamaChatModel ollamaChatModel) {
+        //ChatOptions is used to set LLM parameters
+        ChatOptions chatOptions = ChatOptions.builder().temperature(0.8).build();
+
         ChatClient.Builder chatClientBulder = ChatClient.builder(ollamaChatModel);
-        return chatClientBulder.
-                defaultAdvisors(List.of(new SimpleLoggerAdvisor(),
+        return chatClientBulder
+                .defaultOptions(chatOptions)
+                .defaultAdvisors(List.of(new SimpleLoggerAdvisor(),
                         new TokenUsageAuditAdvisor()))
                 .defaultSystem("""
                         You are an internal HR assistant. Your role is to help\s
