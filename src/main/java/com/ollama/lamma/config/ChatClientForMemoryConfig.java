@@ -9,6 +9,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +31,12 @@ public class ChatClientForMemoryConfig {
     }
 
     @Bean
-    public RetrievalAugmentationAdvisor retrievalAugmentationAdvisor(VectorStore vectorStore) {
+    public RetrievalAugmentationAdvisor retrievalAugmentationAdvisor(VectorStore vectorStore,
+                                                                     ChatClient.Builder chatClientBuilder) {
         return RetrievalAugmentationAdvisor.builder()
+                //queryTransformers-> rewrite the query for send to llm
+                .queryTransformers(RewriteQueryTransformer.builder().
+                        chatClientBuilder(chatClientBuilder.clone()).build())
                 .documentRetriever(
                         VectorStoreDocumentRetriever.builder()
                                 .vectorStore(vectorStore)   // 🔥 REQUIRED
